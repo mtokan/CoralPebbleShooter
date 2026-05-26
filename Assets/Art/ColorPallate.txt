@@ -1,0 +1,14 @@
+Coral Pebble Shooter - Color Palette
+
+Background Deep Blue: #173B4D
+Side Water Teal: #7EC8C2
+Water Surface Aqua: #A8E6E0
+Danger Coral: #FFB3A7
+
+Pebble Colors:
+Coral Pink: #FF9AA2
+Soft Peach: #FFB7A1
+Seafoam Green: #B5EAD7
+Pearl Yellow: #FFF1A8
+Lavender: #C7B9FF
+Soft Aqua: #A8E6E0
