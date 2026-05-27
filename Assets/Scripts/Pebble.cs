@@ -10,28 +10,24 @@ public enum PebbleColor
     SoftAqua
 }
 
-[RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Rigidbody2D))]
 public class Pebble : MonoBehaviour
 {
     [SerializeField] private PebbleColor pebbleColor;
+    [SerializeField] private SpriteRenderer bodyRenderer;
 
-    private SpriteRenderer _spriteRenderer;
-    private Rigidbody2D _rb;
     private PebbleShooter _shooter;
     private bool _isShot;
     private bool _hasLanded;
-    private Vector2Int _gridCell;
 
     public PebbleColor PebbleColor => pebbleColor;
-    public Vector2Int GridCell => _gridCell;
-    public Rigidbody2D Rigidbody => _rb;
+    public Vector2Int GridCell { get; private set; }
+    public Rigidbody2D Rigidbody { get; private set; }
 
     private void Awake()
     {
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-        _rb = GetComponent<Rigidbody2D>();
+        Rigidbody = GetComponent<Rigidbody2D>();
 
         ApplyColor();
     }
@@ -58,34 +54,33 @@ public class Pebble : MonoBehaviour
 
     public void StopMovement()
     {
-        _rb.linearVelocity = Vector2.zero;
-        _rb.angularVelocity = 0f;
-        _rb.bodyType = RigidbodyType2D.Kinematic;
+        Rigidbody.linearVelocity = Vector2.zero;
+        Rigidbody.angularVelocity = 0f;
+        Rigidbody.bodyType = RigidbodyType2D.Kinematic;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (!_isShot || _hasLanded)
-            return;
+        if (!_isShot || _hasLanded) return;
 
-        bool hitTopWall = collision.gameObject.CompareTag("TopWall");
-        bool hitPebble = collision.gameObject.GetComponent<Pebble>() != null;
+        var hitTopWall = collision.gameObject.CompareTag("TopWall");
+        var hitPebble = collision.gameObject.GetComponent<Pebble>();
 
-        if (!hitTopWall && !hitPebble)
-            return;
+        if (!hitTopWall && hitPebble == null) return;
+
+        var contact = collision.GetContact(0);
 
         _hasLanded = true;
         _isShot = false;
 
-        _shooter.HandlePebbleLanded(this);
+        _shooter.HandlePebbleLanded(this, collision.gameObject, contact.point);
     }
 
     private void ApplyColor()
     {
-        if (_spriteRenderer == null)
-            return;
+        if (bodyRenderer == null) return;
 
-        _spriteRenderer.color = pebbleColor switch
+        bodyRenderer.color = pebbleColor switch
         {
             PebbleColor.CoralPink => HexToColor("#FF9AA2"),
             PebbleColor.SoftPeach => HexToColor("#FFB7A1"),
@@ -99,14 +94,11 @@ public class Pebble : MonoBehaviour
 
     private static Color HexToColor(string hex)
     {
-        if (ColorUtility.TryParseHtmlString(hex, out Color color))
-            return color;
-
-        return Color.white;
+        return ColorUtility.TryParseHtmlString(hex, out var color) ? color : Color.white;
     }
     
     public void SetGridCell(Vector2Int cell)
     {
-        _gridCell = cell;
+        GridCell = cell;
     }
 }
