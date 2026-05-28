@@ -6,6 +6,7 @@ public class PebbleShooter : MonoBehaviour
     [Header("References")]
     [SerializeField] private Pebble pebblePrefab;
     [SerializeField] private Transform firePoint;
+    [SerializeField] private Transform loadedPebblePoint;
     [SerializeField] private Transform boardParent;
     [SerializeField] private PebbleGrid pebbleGrid;
     [SerializeField] private MatchFinder matchFinder;
@@ -95,8 +96,8 @@ public class PebbleShooter : MonoBehaviour
 
     private void LoadPebble()
     {
-        _currentPebble = Instantiate(pebblePrefab, firePoint.position, Quaternion.identity);
-        _currentPebble.transform.SetParent(firePoint);
+        _currentPebble = Instantiate(pebblePrefab, loadedPebblePoint.position, Quaternion.identity);
+        _currentPebble.transform.SetParent(loadedPebblePoint);
         _currentPebble.transform.localPosition = Vector3.zero;
         
         _currentPebble.SetColor(GetRandomPebbleColor());
@@ -117,6 +118,7 @@ public class PebbleShooter : MonoBehaviour
         _canShoot = false;
 
         _currentPebble.transform.SetParent(null);
+        _currentPebble.transform.position = firePoint.position;
 
         var rb = _currentPebble.Rigidbody;
         rb.bodyType = RigidbodyType2D.Dynamic;
