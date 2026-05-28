@@ -15,7 +15,17 @@ public enum PebbleColor
 public class Pebble : MonoBehaviour
 {
     [SerializeField] private PebbleColor pebbleColor;
-    [SerializeField] private SpriteRenderer bodyRenderer;
+    [SerializeField] private SpriteRenderer glassBodyRenderer;
+    [SerializeField] private SpriteRenderer backgroundRenderer;
+    [SerializeField] private SpriteRenderer shellRenderer;
+    
+    [Header("Shell Sprites")]
+    [SerializeField] private Sprite fanShell;
+    [SerializeField] private Sprite spiralShell;
+    [SerializeField] private Sprite sandDollarShell;
+    [SerializeField] private Sprite leafShell;
+    [SerializeField] private Sprite clamShell;
+    [SerializeField] private Sprite conchShell;
 
     private PebbleShooter _shooter;
     private bool _isShot;
@@ -78,17 +88,50 @@ public class Pebble : MonoBehaviour
 
     private void ApplyColor()
     {
-        if (bodyRenderer == null) return;
+        if (glassBodyRenderer != null) glassBodyRenderer.color = GetBodyColor(pebbleColor);
+        if (backgroundRenderer != null) backgroundRenderer.color = GetBackgroundColor(pebbleColor);
+        if (shellRenderer != null) shellRenderer.sprite = GetShellSprite(pebbleColor);
+    }
 
-        bodyRenderer.color = pebbleColor switch
+    private static Color GetBodyColor(PebbleColor color)
+    {
+        return color switch
         {
-            PebbleColor.CoralPink => HexToColor("#FF9AA2"),
-            PebbleColor.SoftPeach => HexToColor("#FFB7A1"),
-            PebbleColor.SeafoamGreen => HexToColor("#B5EAD7"),
-            PebbleColor.PearlYellow => HexToColor("#FFF1A8"),
-            PebbleColor.Lavender => HexToColor("#C7B9FF"),
-            PebbleColor.SoftAqua => HexToColor("#A8E6E0"),
+            PebbleColor.CoralPink => HexToColor("#F27B9B6E"),
+            PebbleColor.SoftPeach => HexToColor("#F29A4B6E"),
+            PebbleColor.SeafoamGreen => HexToColor("#63CFA76E"),
+            PebbleColor.PearlYellow => HexToColor("#E8D45A6E"),
+            PebbleColor.Lavender => HexToColor("#9B7BE86E"),
+            PebbleColor.SoftAqua => HexToColor("#45BFD66E"),
             _ => Color.white
+        };
+    }
+
+    private static Color GetBackgroundColor(PebbleColor color)
+    {
+        return color switch
+        {
+            PebbleColor.CoralPink => HexToColor("#F27B9BB2"),
+            PebbleColor.SoftPeach => HexToColor("#F29A4BB2"),
+            PebbleColor.SeafoamGreen => HexToColor("#63CFA7B2"),
+            PebbleColor.PearlYellow => HexToColor("#E8D45AB2"),
+            PebbleColor.Lavender => HexToColor("#9B7BE8B2"),
+            PebbleColor.SoftAqua => HexToColor("#45BFD6B2"),
+            _ => Color.white
+        };
+    }
+
+    private Sprite GetShellSprite(PebbleColor color)
+    {
+        return color switch
+        {
+            PebbleColor.CoralPink => fanShell,
+            PebbleColor.SoftPeach => spiralShell,
+            PebbleColor.SeafoamGreen => leafShell,
+            PebbleColor.PearlYellow => sandDollarShell,
+            PebbleColor.Lavender => conchShell,
+            PebbleColor.SoftAqua => clamShell,
+            _ => fanShell
         };
     }
 
