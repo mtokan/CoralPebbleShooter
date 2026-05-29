@@ -30,6 +30,10 @@ public class Pebble : MonoBehaviour
     private PebbleShooter _shooter;
     private bool _isShot;
     private bool _hasLanded;
+    private bool _isFloatingAway;
+    private float _surfacePopY;
+    private PopEffectPlayer _popEffectPlayer;
+    private Collider2D _collider;
 
     public PebbleColor PebbleColor => pebbleColor;
     public Vector2Int GridCell { get; private set; }
@@ -38,6 +42,7 @@ public class Pebble : MonoBehaviour
     private void Awake()
     {
         Rigidbody = GetComponent<Rigidbody2D>();
+        _collider = GetComponent<Collider2D>();
 
         ApplyColor();
     }
@@ -143,5 +148,52 @@ public class Pebble : MonoBehaviour
     public void SetGridCell(Vector2Int cell)
     {
         GridCell = cell;
+    }
+    
+    public Color GetVisualColor()
+    {
+        return glassBodyRenderer != null ? glassBodyRenderer.color : Color.white;
+    }
+    
+    private void Update()
+    {
+        if (!_isFloatingAway)
+            return;
+
+        if (transform.position.y < _surfacePopY)
+            return;
+
+        if (_popEffectPlayer != null)
+            _popEffectPlayer.Play(transform.position, GetVisualColor());
+
+        Destroy(gameObject);
+    }
+
+    public void FloatAway(float surfacePopY, PopEffectPlayer popEffectPlayer)
+    {
+        transform.SetParent(null);
+
+        SetColliderEnabled(false);
+
+        _isFloatingAway = true;
+        _surfacePopY = surfacePopY;
+        _popEffectPlayer = popEffectPlayer;
+
+        Rigidbody.bodyType = RigidbodyType2D.Dynamic;
+        Rigidbody.simulated = true;
+        Rigidbody.gravityScale = -0.25f;
+
+        Rigidbody.linearVelocity = new Vector2(
+            Random.Range(-0.25f, 0.25f),
+            Random.Range(0.6f, 1.0f)
+        );
+
+        Rigidbody.angularVelocity = Random.Range(-90f, 90f);
+    }
+    
+    public void SetColliderEnabled(bool isEnabled)
+    {
+        if (_collider != null)
+            _collider.enabled = isEnabled;
     }
 }

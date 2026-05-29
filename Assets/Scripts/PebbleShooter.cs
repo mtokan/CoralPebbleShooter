@@ -10,6 +10,7 @@ public class PebbleShooter : MonoBehaviour
     [SerializeField] private Transform boardParent;
     [SerializeField] private PebbleGrid pebbleGrid;
     [SerializeField] private MatchFinder matchFinder;
+    [SerializeField] private PebbleQueue pebbleQueue;
 
     [Header("Shooting")]
     [SerializeField] private float shootSpeed = 10f;
@@ -100,7 +101,9 @@ public class PebbleShooter : MonoBehaviour
         _currentPebble.transform.SetParent(loadedPebblePoint);
         _currentPebble.transform.localPosition = Vector3.zero;
         
-        _currentPebble.SetColor(GetRandomPebbleColor());
+        var nextColor = pebbleQueue.TakeNextColor();
+        _currentPebble.SetColor(nextColor);
+        _currentPebble.SetColliderEnabled(false);
 
         var rb = _currentPebble.Rigidbody;
         rb.bodyType = RigidbodyType2D.Kinematic;
@@ -118,7 +121,8 @@ public class PebbleShooter : MonoBehaviour
         _canShoot = false;
 
         _currentPebble.transform.SetParent(null);
-        _currentPebble.transform.position = firePoint.position;
+        _currentPebble.transform.position = loadedPebblePoint.position;
+        _currentPebble.SetColliderEnabled(true);
 
         var rb = _currentPebble.Rigidbody;
         rb.bodyType = RigidbodyType2D.Dynamic;
@@ -208,11 +212,5 @@ public class PebbleShooter : MonoBehaviour
         pebbleGrid.SpawnTopRows(pebblePrefab, boardParent, availableColorCount, rowsAddedPerPenalty);
 
         CheckLoseCondition();
-    }
-    
-    private PebbleColor GetRandomPebbleColor()
-    {
-        var colorIndex = Random.Range(0, availableColorCount);
-        return (PebbleColor)colorIndex;
     }
 }

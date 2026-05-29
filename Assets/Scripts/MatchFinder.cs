@@ -6,34 +6,29 @@ public class MatchFinder : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PebbleGrid pebbleGrid;
+    [SerializeField] private PopEffectPlayer popEffectPlayer;
 
     [Header("Match Settings")]
     [SerializeField] private int minimumMatchCount = 3;
+    
+    [Header("Float Away Settings")]
+    [SerializeField] private float surfacePopY = 5.1f;
 
     public bool TryPopMatches(Pebble startingPebble)
     {
-        var matchingGroup = FindMatchingGroup(startingPebble);
+        List<Pebble> matchingGroup = FindMatchingGroup(startingPebble);
 
         if (matchingGroup.Count < minimumMatchCount)
             return false;
 
-        RemovePebbles(matchingGroup);
+        PopPebbles(matchingGroup);
 
-        var floatingPebbles = pebbleGrid.GetFloatingPebbles();
-        RemovePebbles(floatingPebbles);
+        List<Pebble> floatingPebbles = pebbleGrid.GetFloatingPebbles();
+        FloatAwayPebbles(floatingPebbles);
 
         return true;
     }
     
-    private void RemovePebbles(List<Pebble> pebbles)
-    {
-        foreach (var pebble in pebbles.Where(pebble => pebble != null))
-        {
-            pebbleGrid.RemovePebble(pebble.GridCell);
-            Destroy(pebble.gameObject);
-        }
-    }
-
     private List<Pebble> FindMatchingGroup(Pebble startingPebble)
     {
         List<Pebble> result = new();
@@ -69,5 +64,32 @@ public class MatchFinder : MonoBehaviour
         }
 
         return result;
+    }
+    
+    private void PopPebbles(List<Pebble> pebbles)
+    {
+        foreach (Pebble pebble in pebbles)
+        {
+            if (pebble == null)
+                continue;
+
+            if (popEffectPlayer != null)
+                popEffectPlayer.Play(pebble.transform.position, pebble.GetVisualColor());
+
+            pebbleGrid.RemovePebble(pebble.GridCell);
+            Destroy(pebble.gameObject);
+        }
+    }
+
+    private void FloatAwayPebbles(List<Pebble> pebbles)
+    {
+        foreach (Pebble pebble in pebbles)
+        {
+            if (pebble == null)
+                continue;
+
+            pebbleGrid.RemovePebble(pebble.GridCell);
+            pebble.FloatAway(surfacePopY, popEffectPlayer);
+        }
     }
 }
